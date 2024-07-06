@@ -19,4 +19,4 @@ sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/M
 # Modify hostname
 sed -i 's/OpenWrt/yanqinghao-router/g' package/base-files/files/bin/config_generate
 
-sed -i 's/$1$V4UetPzk$CYXluq4wUazHjmCDBCqXF./password/g' openwrt/package/lean/default-settings/files/zzz-default-settings
+# sed -i 's/$1$V4UetPzk$CYXluq4wUazHjmCDBCqXF./password/g' openwrt/package/lean/default-settings/files/zzz-default-settings
