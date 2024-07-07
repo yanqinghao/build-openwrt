@@ -67,7 +67,6 @@ jobs:
     - name: Update feeds
       run: |
         cd openwrt
-        rm -rf ./feeds
         ./scripts/feeds update -a
         rm -rf feeds/luci/applications/luci-app-mosdns
         rm -rf feeds/packages/net/{alist,adguardhome,mosdns,xray*,v2ray*,v2ray*,sing*,smartdns}
