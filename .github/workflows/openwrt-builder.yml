@@ -77,6 +77,7 @@ jobs:
         ./scripts/feeds install -a -f -p passwall_packages
         ./scripts/feeds install luci-app-passwall
         ./scripts/feeds install luci-base
+        make package/luci-base/compile V=99
         ./scripts/feeds install -a
         
     - name: Load custom configuration
