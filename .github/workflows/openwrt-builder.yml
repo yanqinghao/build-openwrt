@@ -93,6 +93,7 @@ jobs:
         make defconfig
         make package/feeds/luci/luci-base/compile V=99
         rm -rf build_dir && make clean
+        make package/libs/toolchain/compile V=99
         make download -j8 V=sc
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
