@@ -23,6 +23,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@main
+
       - name: Space cleanup and Initialization environment
         env:
           DEBIAN_FRONTEND: noninteractive
@@ -53,6 +56,10 @@ jobs:
           ./scripts/feeds update -a
           ./scripts/feeds install -a
           ./scripts/feeds install -a
+          mv ../.config .config
+          sed -i 's/192.168.1.1/192.168.2.1/g' package/base-files/files/bin/config_generate
+          sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/Makefile
+          sed -i 's/OpenWrt/yanqinghao-router/g' package/base-files/files/bin/config_generate
 
       - name: Generate configuration file
         run: |
@@ -86,20 +93,39 @@ jobs:
           cp -rf $(find ./bin/packages/ -type f -name "*.ipk") ./artifact/package/
           cp -rf $(find ./bin/targets/ -type f -name "*.buildinfo" -o -name "*.manifest") ./artifact/buildinfo/
 
-      - name: Upload buildinfo
-        uses: actions/upload-artifact@v3
-        with:
-          name: OpenWrt_buildinfo
-          path: ./openwrt/artifact/buildinfo/
+      # - name: Upload buildinfo
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: OpenWrt_buildinfo
+      #     path: ./openwrt/artifact/buildinfo/
 
-      - name: Upload package
-        uses: actions/upload-artifact@v3
-        with:
-          name: OpenWrt_package
-          path: ./openwrt/artifact/package/
+      # - name: Upload package
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: OpenWrt_package
+      #     path: ./openwrt/artifact/package/
 
-      - name: Upload firmware
-        uses: actions/upload-artifact@v3
+      # - name: Upload firmware
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: OpenWrt_firmware
+      #     path: ./openwrt/bin/targets/
+
+      - name: Generate release tag
+        id: tag
+        if: !cancelled()
+        run: |
+          echo "release_tag=$(date +"%Y.%m.%d-%H%M")" >> $GITHUB_OUTPUT
+          touch release.txt
+          [ ${UPLOAD_GOFILE} = true && ${{ steps.gofile.outputs.url }} ] && echo "🔗 [GoFile](${{ steps.gofile.outputs.url }})" >> release.txt
+          echo "status=success" >> $GITHUB_OUTPUT
+
+      - name: Upload firmware to release
+        uses: softprops/action-gh-release@master
+        if: steps.tag.outputs.status == 'success' && !cancelled()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: OpenWrt_firmware
-          path: ./openwrt/bin/targets/
+          tag_name: ${{ steps.tag.outputs.release_tag }}
+          body_path: release.txt
+          files: ./openwrt/bin/targets/*
