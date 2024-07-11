@@ -70,7 +70,9 @@ jobs:
       - name: Download packages
         run: |
           cd openwrt
-          make download -j16
+          make download -j$(nproc)
+          find dl -size -1024c -exec ls -l {} \;
+          find dl -size -1024c -exec rm -f {} \;
 
       - name: Compile firmware
         run: |
